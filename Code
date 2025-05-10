@@ -1,0 +1,48 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report 
+from sklearn import tree 
+import matplotlib.pyplot as plt
+
+# Step 2: Load the Titanic dataset
+data = pd.read_csv('titanic survival.csv')
+
+# Step 3: Preprocess the data
+data['Age'].fillna(data['Age'].median(), inplace=True) 
+data['Embarked'].fillna(data['Embarked'].mode()[0], inplace=True) 
+data['Fare'].fillna(data['Fare'].median(), inplace=True)
+
+# Encode categorical features
+data['Gender'] = data['Gender'].map({'male': 0, 'female': 1}) 
+data['Embarked'] = data['Embarked'].map({'S': 0, 'C': 1, 'Q': 2})
+
+# Select relevant features 
+features = ['Pclass', 'Gender', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
+x = data[features]
+y = data['Survived']
+
+# Step 4: Split the data
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+# Step 5: Train the decision tree
+clf = DecisionTreeClassifier(max_depth=3, random_state=42)
+clf.fit(x_train, y_train)
+
+# Step 6: Visualize the decision tree
+plt.figure(figsize=(20, 10))
+tree.plot_tree(clf, feature_names=features, class_names=['Not Survived', 'Survived'], filled=True, rounded=True)
+plt.show()
+
+# Step 7: Evaluate the model
+y_pred = clf.predict(x_test)
+accuracy = accuracy_score(y_test, y_pred) 
+precision = precision_score(y_test, y_pred) 
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+
+print(f'Accuracy: {accuracy:.4f}')
+print(f'Precision: {precision:.4f}')
+print(f'Recall: {recall:.4f}')
+print(f'F1 Score: {f1:.4f}')
+print('\nClassification Report: \n', classification_report(y_test, y_pred))
